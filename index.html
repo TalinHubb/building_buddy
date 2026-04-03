@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evony Planner v3</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Evony Building Planner</h1>
+
+  <div class="card">
+    <h2>Current Levels</h2>
+    <div id="current-levels" class="grid"></div>
+    <button id="auto-fill">Auto Fill Requirements</button>
+  </div>
+
+  <div class="card">
+    <h2>Goal</h2>
+    <select id="goal-building"></select>
+    <input type="number" id="goal-level" />
+    <button id="calc-btn">Calculate</button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Required</h2>
+      <div id="required"></div>
+    </div>
+    <div class="card">
+      <h2>Upgrade Plan</h2>
+      <div id="plan"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Resources</h2>
+    <div id="resources"></div>
+  </div>
+
+  <div class="card">
+    <h2>Special Requirements</h2>
+    <div id="special-reqs"></div>
+  </div>
+
+  <div id="loader" class="loader hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 16px;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+h1, h2 { margin-bottom: 8px; }
+
+.card {
+  background: #1e293b;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  background: #3b82f6;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.result-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #334155;
+}
+
+/* GRID LAYOUT */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* CARD STYLE */
+.building-card {
+  background: #1f2937;
+  border-radius: 10px;
+  padding: 6px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* BUILDING NAME */
+.building-card label {
+  font-size: 9px;
+  margin-bottom: 2px;
+  color: #cbd5f5;
+}
+
+/* INPUT BOX */
+.building-card input {
+  padding: 2px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.building-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* LOADER OVERLAY */
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* SPINNER */
+.loader::after {
+  content: "";
+  width: 50px;
+  height: 50px;
+  border: 5px solid #334155;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* HIDDEN STATE */
+.hidden {
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
