@@ -355,6 +355,26 @@ function renderOrder(order, blockers = []) {
     return;
   }
 
+  // --- Achieved All button at the top ---
+  const achievedAllBtn = document.createElement("button");
+  achievedAllBtn.textContent = "✔ Achieved All";
+  achievedAllBtn.style.marginBottom = "10px";
+  achievedAllBtn.onclick = () => {
+    const grouped = {};
+    order.forEach(step => {
+      const [b, lvl] = step.split(" → ");
+      grouped[b] = grouped[b] || [];
+      grouped[b].push(Number(lvl));
+    });
+    Object.entries(grouped).forEach(([b, lvls]) => {
+      state.currentLevels[b] = Math.max(...lvls);
+    });
+    save();
+    renderCurrent();
+    calculate();
+  };
+  container.appendChild(achievedAllBtn);
+
   // --- Group steps by building ---
   const grouped = {};
   order.forEach(step => {
@@ -375,24 +395,42 @@ function renderOrder(order, blockers = []) {
     const label = document.createElement("span");
     label.textContent = formatName(building);
 
-    // --- Dropdown for level selection ---
+    // --- Dropdown for level selection up to max ---
     const select = document.createElement("select");
-    levels.forEach(lvl => {
+
+    const currentLevel = state.currentLevels[building] || 0;
+
+    // Filter + sort (descending)
+    const sortedLevels = levels
+      .filter(lvl => lvl > currentLevel)
+      .sort((a, b) => b - a);
+
+    // Build dropdown
+    sortedLevels.forEach(lvl => {
       const option = document.createElement("option");
       option.value = lvl;
       option.textContent = lvl;
       select.appendChild(option);
     });
 
+    // Disable if nothing to upgrade
+    if (sortedLevels.length === 0) {
+      select.disabled = true;
+    } else {
+      // Default to NEXT level
+      select.value = Math.min(...sortedLevels);
+    }
+
     // --- Achieved button ---
     const btn = document.createElement("button");
     btn.textContent = "✔ Achieved";
+    btn.disabled = select.disabled;
     btn.onclick = () => {
       const selectedLvl = Number(select.value);
       state.currentLevels[building] = selectedLvl;
       save();
-      renderCurrent();   // update current levels UI
-      calculate();       // recalc plan
+      renderCurrent();
+      calculate();
       row.style.opacity = "0.5";
       btn.disabled = true;
     };
@@ -418,6 +456,7 @@ function renderOrder(order, blockers = []) {
       container.appendChild(item);
     });
   }
+
   if (order.length > 10) {
     const more = document.createElement("div");
     more.style.marginTop = "8px";
