@@ -12,14 +12,6 @@ function save() {
   localStorage.setItem("evonyData", JSON.stringify(state));
 }
 
-function showLoader() {
-  document.getElementById("loader").classList.remove("hidden");
-}
-
-function hideLoader() {
-  document.getElementById("loader").classList.add("hidden");
-}
-
 async function loadData() {
   const res = await fetch("buildings.json");
   buildings = await res.json();
@@ -36,26 +28,43 @@ function renderCurrent() {
   const el = document.getElementById("current-levels");
   el.innerHTML = "";
 
-  for (const b in buildings) {
-    const card = document.createElement("div");
-    card.className = "building-card";
+  const buildingList = Object.keys(buildings);
+  const batchSize = 10; // number of cards per batch
+  let index = 0;
 
-    const label = document.createElement("label");
-    label.textContent = formatName(b);
+  function renderBatch() {
+    const batch = buildingList.slice(index, index + batchSize);
+    batch.forEach(b => {
+      const card = document.createElement("div");
+      card.className = "building-card";
 
-    const input = document.createElement("input");
-    input.type = "number";
-    input.min = 0;
-    input.value = state.currentLevels[b];
-    input.onchange = e => {
-      state.currentLevels[b] = +e.target.value;
-      save();
-    };
+      const label = document.createElement("label");
+      label.textContent = formatName(b);
 
-    card.appendChild(label);
-    card.appendChild(input);
-    el.appendChild(card);
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = 0;
+      input.value = state.currentLevels[b];
+      input.onchange = e => {
+        state.currentLevels[b] = +e.target.value;
+        save();
+      };
+
+      card.appendChild(label);
+      card.appendChild(input);
+      el.appendChild(card);
+    });
+
+    index += batchSize;
+
+    if (index < buildingList.length) {
+      // Schedule next batch
+      requestAnimationFrame(renderBatch);
+    }
   }
+
+  // Start first batch
+  renderBatch();
 }
 
 function formatName(name) {
@@ -81,23 +90,36 @@ function renderGoal() {
   lvl.onchange = e => { state.goal.level = +e.target.value; save(); };
 }
 
-function resolve(building, level, res = {}, specials = []) {
-  if (!buildings[building]) {
-    console.warn("Missing building:", building);
-    return { levels: res, specials };
+const resolveCache = {};
+
+function resolve(building, level, res = {}, specials = [], visiting = new Set(), maxLevels = {}) {
+  const key = building + "-" + level;
+
+  if (visiting.has(key)) return { levels: res, specials };
+  visiting.add(key);
+
+  // 🛑 CAP levels
+  if (!maxLevels[building] || level > maxLevels[building]) {
+    maxLevels[building] = level;
+  } else {
+    return { levels: res, specials }; // don't go deeper if we've already hit higher
   }
-  if (!res[building] || res[building] < level) res[building] = level;
+
+  if (!res[building] || res[building] < level) {
+    res[building] = level;
+  }
+
+  const buildingData = buildings[building] || {};
 
   for (let i = 1; i <= level; i++) {
-    const data = buildings[building]?.[i] || {};
-    const reqs = data.requirements || {};
+    const reqs = buildingData[i]?.requirements || {};
 
     for (const r in reqs) {
       if (
         reqs[r] !== null &&
-        !["food", "lumber", "stone", "ore", "gold", "special"].includes(r)
+        !["food","lumber","stone","ore","gold","special"].includes(r)
       ) {
-        resolve(r, reqs[r], res, specials);
+        resolve(r, reqs[r], res, specials, visiting, maxLevels);
       }
     }
 
@@ -117,34 +139,6 @@ function getPlan(current, target) {
     }
   }
   return p;
-}
-
-function applyMinimums(requiredLevels) {
-  const updated = [];
-  for (const b in requiredLevels) {
-    const required = requiredLevels[b];
-    const current = state.currentLevels[b] || 0;
-
-    // only bump UP, never down
-    if (current < required) {
-      state.currentLevels[b] = required;
-      updated.push(b);
-    }
-  }
-
-  save();
-  renderCurrent(); // refresh UI
-  // highlight updated cards
-  setTimeout(() => {
-    updated.forEach(b => {
-      const cards = document.querySelectorAll(".building-card");
-      cards.forEach(card => {
-        if (card.querySelector("label").textContent === formatName(b)) {
-          card.style.boxShadow = "0 0 10px #22c55e";
-        }
-      });
-    });
-  }, 0);
 }
 
 function calcResources(plan) {
@@ -169,18 +163,27 @@ function calcResources(plan) {
 function renderRequired(data) {
   const el = document.getElementById("required");
   el.innerHTML = "";
-  for (const b in data) {
-    el.innerHTML += `<div class='result-item'>${b}: ${data[b]}</div>`;
-  }
+  el.innerHTML = Object.entries(data)
+  .map(([b, val]) => `<div class='result-item'>${b}: ${val}</div>`)
+  .join("");
 }
 
 function renderPlan(data) {
   const el = document.getElementById("plan");
   el.innerHTML = "";
-  if (Object.keys(data).length === 0) { el.innerHTML = "Done 🎉"; return; }
-  for (const b in data) {
-    el.innerHTML += `<div class='result-item'>${b}: ${data[b].from} → ${data[b].to}</div>`;
+
+  if (Object.keys(data).length === 0) {
+    el.innerHTML = "Done 🎉";
+    return;
   }
+
+  el.innerHTML = Object.entries(data)
+    .map(([b, val]) => {
+      return `<div class='result-item'>
+        ${formatName(b)}: ${val.from} → ${val.to}
+      </div>`;
+    })
+    .join("");
 }
 
 function renderResources(r) {
@@ -248,7 +251,13 @@ function getBuildOrder(plan, targetLevels) {
   const order = [];
 
   function canUpgrade(building, level, currentLevels) {
-    const reqs = buildings[building][level]?.requirements || {};
+    const buildingData = buildings[building];
+    if (!buildingData) return false;
+
+    const levelData = buildingData[level];
+    if (!levelData || !levelData.requirements) return true;
+
+    const reqs = levelData.requirements || {};
 
     for (const r in reqs) {
       if (
@@ -260,23 +269,33 @@ function getBuildOrder(plan, targetLevels) {
         }
       }
     }
-
+    if (!buildingData || !buildingData[level]) {
+      console.warn("Missing building/level:", building, level);
+      return false;
+    }
     return true;
   }
 
   const simulated = { ...state.currentLevels };
   let progress = true;
 
+  const buildingsToUpgrade = Object.keys(plan); // ✅ use this instead
+
   while (progress) {
     progress = false;
-    const sortedBuildings = Object.keys(plan).sort((a, b) => getPriority(b) - getPriority(a));
+
+    const sortedBuildings = buildingsToUpgrade.sort(
+      (a, b) => getPriority(b) - getPriority(a)
+    );
 
     for (const b of sortedBuildings) {
       const target = targetLevels[b];
+      if (!target) continue;
       simulated[b] = simulated[b] || 0;
 
       while (simulated[b] < target) {
         const nextLevel = simulated[b] + 1;
+
         if (canUpgrade(b, nextLevel, simulated)) {
           order.push(`${b} → ${nextLevel}`);
           simulated[b]++;
@@ -293,9 +312,18 @@ function getBuildOrder(plan, targetLevels) {
 
 function getBlockers(plan, simulated) {
   const blockers = [];
+
   for (const b in plan) {
     const nextLevel = (simulated[b] || 0) + 1;
-    const reqs = buildings[b][nextLevel]?.requirements || {};
+
+    const buildingData = buildings[b];
+    if (!buildingData) continue;
+
+    const levelData = buildingData[nextLevel];
+    if (!levelData || !levelData.requirements) continue;
+
+    const reqs = levelData.requirements;
+
     for (const r in reqs) {
       if (
         reqs[r] !== null &&
@@ -307,6 +335,7 @@ function getBlockers(plan, simulated) {
       }
     }
   }
+
   return [...new Set(blockers)];
 }
 
@@ -326,45 +355,111 @@ function renderOrder(order, blockers = []) {
     return;
   }
 
-  order.forEach(step => { container.innerHTML += `<div class='result-item'>${step}</div>`; });
+  // --- Group steps by building ---
+  const grouped = {};
+  order.forEach(step => {
+    const [b, lvl] = step.split(" → ");
+    grouped[b] = grouped[b] || [];
+    grouped[b].push(Number(lvl));
+  });
+
+  Object.entries(grouped).forEach(([building, levels]) => {
+    const maxLevel = Math.max(...levels);
+    const row = document.createElement("div");
+    row.className = "result-item";
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.justifyContent = "space-between";
+    row.style.marginBottom = "6px";
+
+    const label = document.createElement("span");
+    label.textContent = formatName(building);
+
+    // --- Dropdown for level selection ---
+    const select = document.createElement("select");
+    levels.forEach(lvl => {
+      const option = document.createElement("option");
+      option.value = lvl;
+      option.textContent = lvl;
+      select.appendChild(option);
+    });
+
+    // --- Achieved button ---
+    const btn = document.createElement("button");
+    btn.textContent = "✔ Achieved";
+    btn.onclick = () => {
+      const selectedLvl = Number(select.value);
+      state.currentLevels[building] = selectedLvl;
+      save();
+      renderCurrent();   // update current levels UI
+      calculate();       // recalc plan
+      row.style.opacity = "0.5";
+      btn.disabled = true;
+    };
+
+    row.appendChild(label);
+    row.appendChild(select);
+    row.appendChild(btn);
+    container.appendChild(row);
+  });
+
   if (blockers.length > 0) {
-    container.innerHTML += `<div style='margin-top:10px;color:#f87171;font-weight:bold'>Blocked:</div>`;
-    blockers.forEach(b => container.innerHTML += `<div class='result-item'>❌ ${b}</div>`);
+    const blockHeader = document.createElement("div");
+    blockHeader.style.marginTop = "10px";
+    blockHeader.style.color = "#f87171";
+    blockHeader.style.fontWeight = "bold";
+    blockHeader.textContent = "Blocked:";
+    container.appendChild(blockHeader);
+
+    blockers.forEach(b => {
+      const item = document.createElement("div");
+      item.className = "result-item";
+      item.textContent = `❌ ${b}`;
+      container.appendChild(item);
+    });
+  }
+  if (order.length > 10) {
+    const more = document.createElement("div");
+    more.style.marginTop = "8px";
+    more.style.opacity = "0.7";
+    more.textContent = `...and ${order.length - 10} more steps`;
+    container.appendChild(more);
   }
 }
 
-function calculate() {
-  showLoader();
+async function calculate() {
+  const loader = document.getElementById("loader");
+  loader.classList.remove("hidden"); // show loader
 
-  // Let UI render BEFORE heavy work
-  setTimeout(() => {
-    const { levels, specials } = resolve(state.goal.building, state.goal.level);
-    const plan = getPlan(state.currentLevels, levels);
-    const resources = calcResources(plan);
-    const order = getBuildOrder(plan, levels);
+  // Give the browser a moment to render the loader
+  await new Promise(resolve => setTimeout(resolve, 10));
 
-    const simulated = { ...state.currentLevels };
-    order.forEach(step => {
-      const [b, lvl] = step.split(" → ");
-      simulated[b] = Number(lvl);
-    });
+  // ---- Heavy computation starts here ----
+  const { levels, specials } = resolve(state.goal.building, state.goal.level);
+  const plan = getPlan(state.currentLevels, levels);
+  const resources = calcResources(plan);
+  const order = getBuildOrder(plan, levels);
 
-    const blockers = getBlockers(plan, simulated);
+  const simulated = { ...state.currentLevels };
+  order.forEach(step => {
+    const [b, lvl] = step.split(" → ");
+    simulated[b] = Number(lvl);
+  });
 
-    renderRequired(levels);
-    renderPlan(plan);
-    renderResources(resources);
-    renderSpecials(specials);
-    renderOrder(order, blockers);
+  const blockers = getBlockers(plan, simulated);
 
-    hideLoader(); // 👈 IMPORTANT
-  }, 10); // tiny delay so spinner appears first
+  renderRequired(levels);
+  renderPlan(plan);
+  renderResources(resources);
+  renderSpecials(specials);
+  renderOrder(order, blockers);
+  // ---- Heavy computation ends ----
+
+  loader.classList.add("hidden"); // hide loader
 }
 
 document.getElementById("calc-btn").addEventListener("click", calculate);
 loadData();
 
-document.getElementById("auto-fill")?.addEventListener("click", () => {
-  const { levels } = resolve(state.goal.building, state.goal.level);
-  applyMinimums(levels);
-});
+
+
