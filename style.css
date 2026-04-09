@@ -1,3 +1,4 @@
+/* ===== BASE ===== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -6,15 +7,46 @@ body {
   color: #e2e8f0;
 }
 
-h1, h2 { margin-bottom: 8px; }
+h1, h2 {
+  margin-bottom: 8px;
+}
 
+/* ===== LAYOUT ===== */
+#main-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== CARD ===== */
 .card {
   background: #1e293b;
   padding: 16px;
   border-radius: 12px;
-  margin-bottom: 16px;
 }
 
+/* ===== SECTION SYSTEM ===== */
+.section-header {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-body {
+  margin-top: 10px;
+}
+
+/* Buttons inside headers */
+.section-header button {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-top: 0;
+}
+
+/* ===== FORM ELEMENTS ===== */
 input, select, button {
   width: 100%;
   padding: 10px;
@@ -31,11 +63,18 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== RESULTS ===== */
 .result-item {
   padding: 6px 0;
   border-bottom: 1px solid #334155;
 }
 
+/* ===== GRID (CURRENT BUILDINGS) ===== */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
@@ -43,34 +82,63 @@ button {
   margin-top: 8px;
 }
 
-/* CARD STYLE */
+/* ===== BUILDING CARD ===== */
 .building-card {
   background: #1f2937;
   border-radius: 10px;
   padding: 6px;
   text-align: center;
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
-
-/* BUILDING NAME */
-.building-card label {
-  font-size: 9px;
-  margin-bottom: 2px;
-  color: #cbd5f5;
-}
-
-/* INPUT BOX */
-.building-card input {
-  padding: 2px;
-  font-size: 12px;
-  text-align: center;
+  transition: 0.2s;
 }
 
 .building-card:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-/* LOADER OVERLAY */
+/* Name */
+.building-card label {
+  font-size: 9px;
+  margin-bottom: 2px;
+  color: #cbd5f5;
+}
+
+/* Input */
+.building-card input {
+  padding: 2px;
+  font-size: 12px;
+  text-align: center;
+}
+
+#build-order {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+#build-order button {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* ===== REQUIRED + PLAN SIDE BY SIDE ===== */
+.dual-section {
+  display: flex;
+  gap: 12px;
+}
+
+.dual-section .card {
+  flex: 1;
+}
+
+/* Stack on small screens */
+@media (max-width: 768px) {
+  .dual-section {
+    flex-direction: column;
+  }
+}
+
+/* ===== LOADER ===== */
 .loader {
   position: fixed;
   top: 0;
@@ -84,7 +152,7 @@ button {
   z-index: 999;
 }
 
-/* SPINNER */
+/* Spinner */
 .loader::after {
   content: "";
   width: 50px;
@@ -95,7 +163,7 @@ button {
   animation: spin 1s linear infinite;
 }
 
-/* HIDDEN STATE */
+/* Hidden */
 .hidden {
   display: none;
 }

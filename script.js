@@ -22,6 +22,85 @@ async function loadData() {
 
   renderCurrent();
   renderGoal();
+  addSectionControls();
+  loadLayout();
+  loadCollapsed();
+}
+
+function addSectionControls() {
+  document.querySelectorAll(".section").forEach(section => {
+    const header = section.querySelector(".section-header");
+
+    const up = document.createElement("button");
+    up.textContent = "⬆";
+    up.onclick = (e) => {
+      e.stopPropagation();
+      moveSection(section, -1);
+    };
+
+    const down = document.createElement("button");
+    down.textContent = "⬇";
+    down.onclick = (e) => {
+      e.stopPropagation();
+      moveSection(section, 1);
+    };
+
+    header.appendChild(up);
+    header.appendChild(down);
+  });
+}
+
+function moveSection(section, dir) {
+  const container = document.getElementById("main-layout");
+  const sections = Array.from(container.children);
+  const index = sections.indexOf(section);
+
+  const newIndex = index + dir;
+  if (newIndex < 0 || newIndex >= sections.length) return;
+
+  container.insertBefore(
+    section,
+    dir === 1 ? sections[newIndex].nextSibling : sections[newIndex]
+  );
+
+  saveLayout();
+}
+
+function saveLayout() {
+  const order = Array.from(document.querySelectorAll(".section"))
+    .map(s => s.dataset.id);
+  localStorage.setItem("layoutOrder", JSON.stringify(order));
+}
+
+function loadLayout() {
+  const order = JSON.parse(localStorage.getItem("layoutOrder"));
+  if (!order) return;
+
+  const container = document.getElementById("main-layout");
+
+  order.forEach(id => {
+    const el = document.querySelector(`.section[data-id="${id}"]`);
+    if (el) container.appendChild(el);
+  });
+}
+
+function saveCollapsed() {
+  const state = {};
+  document.querySelectorAll(".section").forEach(s => {
+    const id = s.dataset.id;
+    const hidden = s.querySelector(".section-body").classList.contains("hidden");
+    state[id] = hidden;
+  });
+  localStorage.setItem("collapsedState", JSON.stringify(state));
+}
+
+function loadCollapsed() {
+  const state = JSON.parse(localStorage.getItem("collapsedState")) || {};
+  document.querySelectorAll(".section").forEach(s => {
+    if (state[s.dataset.id]) {
+      s.querySelector(".section-body").classList.add("hidden");
+    }
+  });
 }
 
 function renderCurrent() {
@@ -340,14 +419,7 @@ function getBlockers(plan, simulated) {
 }
 
 function renderOrder(order, blockers = []) {
-  const container = document.getElementById("build-order") || (() => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = "<h2>Build Order</h2><div id='build-order'></div>";
-    document.body.appendChild(card);
-    return document.getElementById("build-order");
-  })();
-
+  const container = document.getElementById("build-order")
   container.innerHTML = "";
 
   if (order.length === 0 && blockers.length === 0) {
@@ -500,5 +572,12 @@ async function calculate() {
 document.getElementById("calc-btn").addEventListener("click", calculate);
 loadData();
 
-
+document.addEventListener("click", e => {
+  if (e.target.classList.contains("section-header")) {
+    const section = e.target.closest(".section");
+    const body = section.querySelector(".section-body");
+    body.classList.toggle("hidden");
+    saveCollapsed();
+  }
+});
 

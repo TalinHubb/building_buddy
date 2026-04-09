@@ -10,36 +10,58 @@
   <h1>Evony Building Planner</h1>
 
   <div class="card">
-    <h2>Current Levels</h2>
-    <div id="current-levels" class="grid"></div>
-  </div>
-
-  <div class="card">
     <h2>Goal</h2>
     <select id="goal-building"></select>
     <input type="number" id="goal-level" />
     <button id="calc-btn">Calculate</button>
   </div>
 
-  <div class="">
-    <div class="card">
-      <h2>Required</h2>
-      <div id="required"></div>
-    </div>
-    <div class="card">
-      <h2>Upgrade Plan</h2>
-      <div id="plan"></div>
-    </div>
-  </div>
+  <div id="main-layout">
 
-  <div class="card">
-    <h2>Resources</h2>
-    <div id="resources"></div>
-  </div>
+    <div class="section" data-id="current">
+      <div class="card">
+        <h2 class="section-header">Current Levels</h2>
+        <div class="section-body">
+          <div id="current-levels" class="grid"></div>
+        </div>
+      </div>
+    </div>
 
-  <div class="card">
-    <h2>Special Requirements</h2>
-    <div id="special-reqs"></div>
+    <div class="section" data-id="required">
+      <div class="card">
+        <h2 class="section-header">Required</h2>
+        <div class="section-body" id="required"></div>
+      </div>
+    </div>
+
+    <div class="section" data-id="plan">
+      <div class="card">
+        <h2 class="section-header">Upgrade Plan</h2>
+        <div class="section-body" id="plan"></div>
+      </div>
+    </div>
+
+    <div class="section" data-id="resources">
+      <div class="card">
+        <h2 class="section-header">Resources</h2>
+        <div class="section-body" id="resources"></div>
+      </div>
+    </div>
+
+    <div class="section" data-id="special">
+      <div class="card">
+        <h2 class="section-header">Special Requirements</h2>
+        <div class="section-body" id="special-reqs"></div>
+      </div>
+    </div>
+
+    <div class="card section" data-id="build-order-section">
+      <h2 class="section-header">Build Order</h2>
+      <div class="section-body">
+        <div id="build-order"></div>
+      </div>
+    </div>
+
   </div>
 
   <div id="loader" class="loader hidden"></div>
