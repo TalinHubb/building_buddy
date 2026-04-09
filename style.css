@@ -29,9 +29,26 @@ h1, h2 {
 .section-header {
   cursor: pointer;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+}
+
+/* Push controls to the right */
+.section-controls {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+/* Make buttons compact */
+.section-controls button {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-top: 0;
+}
+
+.section-controls button:hover {
+  background: #2563eb;
 }
 
 .section-body {

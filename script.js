@@ -31,6 +31,9 @@ function addSectionControls() {
   document.querySelectorAll(".section").forEach(section => {
     const header = section.querySelector(".section-header");
 
+    const controls = document.createElement("div");
+    controls.className = "section-controls";
+
     const up = document.createElement("button");
     up.textContent = "⬆";
     up.onclick = (e) => {
@@ -45,8 +48,9 @@ function addSectionControls() {
       moveSection(section, 1);
     };
 
-    header.appendChild(up);
-    header.appendChild(down);
+    controls.appendChild(up);
+    controls.appendChild(down);
+    header.appendChild(controls);
   });
 }
 
