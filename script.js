@@ -156,6 +156,14 @@ function formatName(name) {
     .replace(/\b\w/g, c => c.toUpperCase());
 }
 
+function formatShort(num) {
+  if (num >= 1e12) return (num / 1e12).toFixed(2).replace(/\.00$/, "") + "T";
+  if (num >= 1e9)  return (num / 1e9).toFixed(2).replace(/\.00$/, "") + "B";
+  if (num >= 1e6)  return (num / 1e6).toFixed(2).replace(/\.00$/, "") + "M";
+  if (num >= 1e3)  return (num / 1e3).toFixed(2).replace(/\.00$/, "") + "K";
+  return num.toString();
+}
+
 function renderGoal() {
   const sel = document.getElementById("goal-building");
   sel.innerHTML = "";
@@ -243,30 +251,41 @@ function calcResources(plan) {
   return total;
 }
 
-function renderRequired(data) {
+function renderRequired(targetLevels) {
   const el = document.getElementById("required");
   el.innerHTML = "";
-  el.innerHTML = Object.entries(data)
-  .map(([b, val]) => `<div class='result-item'>${b}: ${val}</div>`)
-  .join("");
-}
 
-function renderPlan(data) {
-  const el = document.getElementById("plan");
-  el.innerHTML = "";
+  const rows = Object.entries(targetLevels)
+    .filter(([b, target]) => (state.currentLevels[b] || 0) < target)
+    .map(([b, target]) => {
+      const current = state.currentLevels[b] || 0;
 
-  if (Object.keys(data).length === 0) {
-    el.innerHTML = "Done 🎉";
-    return;
-  }
+      let total = { food: 0, lumber: 0, stone: 0, ore: 0, gold: 0 };
 
-  el.innerHTML = Object.entries(data)
-    .map(([b, val]) => {
-      return `<div class='result-item'>
-        ${formatName(b)}: ${val.from} → ${val.to}
-      </div>`;
-    })
-    .join("");
+      for (let lvl = current + 1; lvl <= target; lvl++) {
+        const cost = buildings[b]?.[lvl]?.requirements || {};
+        total.food += cost.food || 0;
+        total.lumber += cost.lumber || 0;
+        total.stone += cost.stone || 0;
+        total.ore += cost.ore || 0;
+        total.gold += cost.gold || 0;
+      }
+
+      return `
+        <div class='result-item'>
+          <strong>${formatName(b)}</strong>: ${current} → ${target}
+          <div style="font-size:12px; opacity:0.8">
+            🥩 ${formatShort(total.food)} 
+            🌲 ${formatShort(total.lumber)} 
+            🪨 ${formatShort(total.stone)} 
+            ⛏ ${formatShort(total.ore)} 
+            💰 ${formatShort(total.gold)}
+          </div>
+        </div>
+      `;
+    });
+
+  el.innerHTML = rows.join("") || "All requirements met 🎉";
 }
 
 function renderResources(r) {
@@ -564,7 +583,6 @@ async function calculate() {
   const blockers = getBlockers(plan, simulated);
 
   renderRequired(levels);
-  renderPlan(plan);
   renderResources(resources);
   renderSpecials(specials);
   renderOrder(order, blockers);
