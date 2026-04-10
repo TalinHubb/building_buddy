@@ -1,5 +1,5 @@
 let buildings = {};
-
+const expandedLevels = new Set();
 const defaultState = {
   currentLevels: {},
   goal: { building: "keep", level: 1 },
@@ -491,30 +491,46 @@ function renderLevelBreakdown(plan) {
   const sorted = sortedAll.slice(0, DISPLAY_LIMIT);
 
   sorted.forEach(level => {
+    const isOpen = expandedLevels.has(level);
+
     const section = document.createElement("div");
     section.style.marginTop = "10px";
 
     const header = document.createElement("div");
     header.style.fontWeight = "bold";
-    header.textContent = `Level ${level}`;
+    header.style.cursor = "pointer";
+    header.textContent = `${isOpen ? "▼" : "▶"} Level ${level}`;
+
+    header.onclick = () => {
+      if (expandedLevels.has(level)) {
+        expandedLevels.delete(level);
+      } else {
+        expandedLevels.add(level);
+      }
+      renderLevelBreakdown(plan);
+    };
+
     section.appendChild(header);
 
-    // Buildings
-    levels[level].buildings.forEach(b => {
-      const item = document.createElement("div");
-      item.className = "result-item";
-      item.textContent = `${formatName(b.building)} → ${b.level}`;
-      section.appendChild(item);
-    });
+    if (isOpen) {
+      // Buildings
+      levels[level].buildings.forEach(b => {
+        const item = document.createElement("div");
+        item.className = "result-item";
+        item.textContent = `${formatName(b.building)} → ${b.level}`;
+        section.appendChild(item);
+      });
 
-    // Resources
-    const r = levels[level].resources;
-    const res = document.createElement("div");
-    res.style.fontSize = "12px";
-    res.style.opacity = "0.8";
-    res.textContent =
-      `🥩 ${formatShort(r.food)} 🌲 ${formatShort(r.lumber)} 🪨 ${formatShort(r.stone)} ⛏ ${formatShort(r.ore)} 💰 ${formatShort(r.gold)}`;
-    section.appendChild(res);
+      // Resources
+      const r = levels[level].resources;
+      const res = document.createElement("div");
+      res.style.fontSize = "12px";
+      res.style.opacity = "0.8";
+      res.textContent =
+        `🥩 ${formatShort(r.food)} 🌲 ${formatShort(r.lumber)} 🪨 ${formatShort(r.stone)} ⛏ ${formatShort(r.ore)} 💰 ${formatShort(r.gold)}`;
+
+      section.appendChild(res);
+    }
 
     container.appendChild(section);
   });
