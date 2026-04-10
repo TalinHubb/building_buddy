@@ -457,6 +457,77 @@ function getBlockers(plan, simulated, targetLevels) {
   );
 }
 
+function renderLevelBreakdown(plan) {
+  const container = document.getElementById("level-breakdown");
+  container.innerHTML = "";
+
+  const levels = {};
+
+  // Build level groups
+  for (const b in plan) {
+    for (let lvl = plan[b].from + 1; lvl <= plan[b].to; lvl++) {
+      levels[lvl] = levels[lvl] || {
+        buildings: [],
+        resources: { food: 0, lumber: 0, stone: 0, ore: 0, gold: 0 }
+      };
+
+      levels[lvl].buildings.push({ building: b, level: lvl });
+
+      const cost = buildings[b]?.[lvl]?.requirements || {};
+      levels[lvl].resources.food += cost.food || 0;
+      levels[lvl].resources.lumber += cost.lumber || 0;
+      levels[lvl].resources.stone += cost.stone || 0;
+      levels[lvl].resources.ore += cost.ore || 0;
+      levels[lvl].resources.gold += cost.gold || 0;
+    }
+  }
+
+  // Sort levels
+  const sortedAll = Object.keys(levels)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  const DISPLAY_LIMIT = 5;
+  const sorted = sortedAll.slice(0, DISPLAY_LIMIT);
+
+  sorted.forEach(level => {
+    const section = document.createElement("div");
+    section.style.marginTop = "10px";
+
+    const header = document.createElement("div");
+    header.style.fontWeight = "bold";
+    header.textContent = `Level ${level}`;
+    section.appendChild(header);
+
+    // Buildings
+    levels[level].buildings.forEach(b => {
+      const item = document.createElement("div");
+      item.className = "result-item";
+      item.textContent = `${formatName(b.building)} → ${b.level}`;
+      section.appendChild(item);
+    });
+
+    // Resources
+    const r = levels[level].resources;
+    const res = document.createElement("div");
+    res.style.fontSize = "12px";
+    res.style.opacity = "0.8";
+    res.textContent =
+      `🥩 ${formatShort(r.food)} 🌲 ${formatShort(r.lumber)} 🪨 ${formatShort(r.stone)} ⛏ ${formatShort(r.ore)} 💰 ${formatShort(r.gold)}`;
+    section.appendChild(res);
+
+    container.appendChild(section);
+  });
+
+  if (sortedAll.length > DISPLAY_LIMIT) {
+    const more = document.createElement("div");
+    more.style.marginTop = "8px";
+    more.style.opacity = "0.7";
+    more.textContent = `...and ${sortedAll.length - DISPLAY_LIMIT} more levels`;
+    container.appendChild(more);
+  }
+}
+
 function renderOrder(order, blockers = []) {
   const container = document.getElementById("build-order")
   container.innerHTML = "";
@@ -631,6 +702,7 @@ async function calculate() {
   renderResources(resources);
   renderSpecials(specials);
   renderOrder(order, blockers);
+  renderLevelBreakdown(plan);
   // ---- Heavy computation ends ----
 
   loader.classList.add("hidden"); // hide loader
