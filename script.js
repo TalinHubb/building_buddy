@@ -386,7 +386,7 @@ function getBuildOrder(plan, targetLevels) {
   while (progress) {
     progress = false;
 
-    const sortedBuildings = buildingsToUpgrade.sort(
+    const sortedBuildings = [...buildingsToUpgrade].sort(
       (a, b) => getPriority(b) - getPriority(a)
     );
 
@@ -412,11 +412,17 @@ function getBuildOrder(plan, targetLevels) {
   return order;
 }
 
-function getBlockers(plan, simulated) {
+function getBlockers(plan, simulated, targetLevels) {
   const blockers = [];
 
   for (const b in plan) {
-    const nextLevel = (simulated[b] || 0) + 1;
+    const current = simulated[b] || 0;
+    const target = targetLevels[b];
+
+    // Only check if NOT finished
+    if (current >= target) continue;
+
+    const nextLevel = current + 1;
 
     const buildingData = buildings[b];
     if (!buildingData) continue;
@@ -432,13 +438,23 @@ function getBlockers(plan, simulated) {
         !["food", "lumber", "stone", "ore", "gold", "special"].includes(r)
       ) {
         if ((simulated[r] || 0) < reqs[r]) {
-          blockers.push(`${b} needs ${r} → ${reqs[r]}`);
+          blockers.push({
+            building: b,
+            requirement: r,
+            level: reqs[r]
+          });
         }
       }
     }
   }
 
-  return [...new Set(blockers)];
+  return Object.values(
+    blockers.reduce((acc, item) => {
+      const key = `${item.building}-${item.requirement}-${item.level}`;
+      acc[key] = item; // dedupe
+      return acc;
+    }, {})
+  );
 }
 
 function renderOrder(order, blockers = []) {
@@ -478,7 +494,7 @@ function renderOrder(order, blockers = []) {
     grouped[b].push(Number(lvl));
   });
 
-  Object.entries(grouped).forEach(([building, levels]) => {
+  Object.entries(grouped).slice(0, 5).forEach(([building, levels]) => {
     const maxLevel = Math.max(...levels);
     const row = document.createElement("div");
     row.className = "result-item";
@@ -544,19 +560,48 @@ function renderOrder(order, blockers = []) {
     blockHeader.textContent = "Blocked:";
     container.appendChild(blockHeader);
 
+    // --- Group blockers by level ---
+    const blockersByLevel = {};
+
     blockers.forEach(b => {
-      const item = document.createElement("div");
-      item.className = "result-item";
-      item.textContent = `❌ ${b}`;
-      container.appendChild(item);
+      blockersByLevel[b.level] = blockersByLevel[b.level] || [];
+      blockersByLevel[b.level].push(b);
+    });
+
+    // --- Sort levels ascending ---
+    const sortedLevels = Object.keys(blockersByLevel)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    // --- Render grouped blockers ---
+    sortedLevels.forEach(level => {
+      const levelHeader = document.createElement("div");
+      levelHeader.style.marginTop = "6px";
+      levelHeader.style.fontWeight = "bold";
+      levelHeader.textContent = `Level ${level}`;
+      container.appendChild(levelHeader);
+
+      blockersByLevel[level].sort((a, b) => getPriority(b.building) - getPriority(a.building)).forEach(b => {
+        const item = document.createElement("div");
+        item.className = "result-item";
+        item.textContent =
+          `❌ ${formatName(b.requirement)} needed for ${formatName(b.building)}`;
+        container.appendChild(item);
+      });
     });
   }
 
-  if (order.length > 10) {
+  const DISPLAY_LIMIT = 5;
+  const groupedEntries = Object.entries(grouped);
+
+  if (groupedEntries.length > DISPLAY_LIMIT) {
     const more = document.createElement("div");
     more.style.marginTop = "8px";
     more.style.opacity = "0.7";
-    more.textContent = `...and ${order.length - 10} more steps`;
+
+    const remaining = groupedEntries.length - DISPLAY_LIMIT;
+    more.textContent = `...and ${remaining} more buildings`;
+
     container.appendChild(more);
   }
 }
@@ -580,7 +625,7 @@ async function calculate() {
     simulated[b] = Number(lvl);
   });
 
-  const blockers = getBlockers(plan, simulated);
+  const blockers = getBlockers(plan, simulated, levels);
 
   renderRequired(levels);
   renderResources(resources);
