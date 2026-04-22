@@ -6,7 +6,11 @@ body {
   background: #0f172a;
   color: #e2e8f0;
 }
-
+img {
+  max-width: 20%;
+  height: auto;
+  margin-bottom: 16px;
+}
 h1, h2 {
   margin-bottom: 8px;
 }

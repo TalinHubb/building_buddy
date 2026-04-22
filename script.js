@@ -399,7 +399,10 @@ function getBuildOrder(plan, targetLevels) {
         const nextLevel = simulated[b] + 1;
 
         if (canUpgrade(b, nextLevel, simulated)) {
-          order.push(`${b} → ${nextLevel}`);
+          order.push({
+            building: b,
+            level: nextLevel
+          });
           simulated[b]++;
           progress = true;
         } else {
@@ -457,89 +460,80 @@ function getBlockers(plan, simulated, targetLevels) {
   );
 }
 
-function renderLevelBreakdown(plan) {
+function renderLevelBreakdown(plan, order = []) {
   const container = document.getElementById("level-breakdown");
   container.innerHTML = "";
 
   const levels = {};
 
-  // Build level groups
-  for (const b in plan) {
-    for (let lvl = plan[b].from + 1; lvl <= plan[b].to; lvl++) {
-      levels[lvl] = levels[lvl] || {
-        buildings: [],
-        resources: { food: 0, lumber: 0, stone: 0, ore: 0, gold: 0 }
-      };
+  // --- Group by progression level ---
+  order.forEach(step => {
+    if (!step || !step.building || !step.level) return;
+    const lvl = step.level;
 
-      levels[lvl].buildings.push({ building: b, level: lvl });
+    levels[lvl] = levels[lvl] || {
+      buildings: [],
+      resources: { food: 0, lumber: 0, stone: 0, ore: 0, gold: 0 }
+    };
 
-      const cost = buildings[b]?.[lvl]?.requirements || {};
-      levels[lvl].resources.food += cost.food || 0;
-      levels[lvl].resources.lumber += cost.lumber || 0;
-      levels[lvl].resources.stone += cost.stone || 0;
-      levels[lvl].resources.ore += cost.ore || 0;
-      levels[lvl].resources.gold += cost.gold || 0;
-    }
-  }
+    levels[lvl].buildings.push(step);
+  });
 
-  // Sort levels
-  const sortedAll = Object.keys(levels)
+  // --- Sort levels ---
+  const sortedAll = Object.keys(levels || {})
     .map(Number)
+    .filter(n => !isNaN(n))
     .sort((a, b) => a - b);
 
   const DISPLAY_LIMIT = 5;
   const sorted = sortedAll.slice(0, DISPLAY_LIMIT);
 
+  // --- Render ---
   sorted.forEach(level => {
-    const isOpen = expandedLevels.has(level);
-
     const section = document.createElement("div");
     section.style.marginTop = "10px";
 
     const header = document.createElement("div");
+    header.textContent = `Level ${level}`;
     header.style.fontWeight = "bold";
-    header.style.cursor = "pointer";
-    header.textContent = `${isOpen ? "▼" : "▶"} Level ${level}`;
-
-    header.onclick = () => {
-      if (expandedLevels.has(level)) {
-        expandedLevels.delete(level);
-      } else {
-        expandedLevels.add(level);
-      }
-      renderLevelBreakdown(plan);
-    };
-
     section.appendChild(header);
 
-    if (isOpen) {
-      // Buildings
-      levels[level].buildings.forEach(b => {
-        const item = document.createElement("div");
-        item.className = "result-item";
-        item.textContent = `${formatName(b.building)} → ${b.level}`;
-        section.appendChild(item);
-      });
+    let total = { food: 0, lumber: 0, stone: 0, ore: 0, gold: 0 };
 
-      // Resources
-      const r = levels[level].resources;
-      const res = document.createElement("div");
-      res.style.fontSize = "12px";
-      res.style.opacity = "0.8";
-      res.textContent =
-        `🥩 ${formatShort(r.food)} 🌲 ${formatShort(r.lumber)} 🪨 ${formatShort(r.stone)} ⛏ ${formatShort(r.ore)} 💰 ${formatShort(r.gold)}`;
+    levels[level].buildings.forEach(b => {
+      const item = document.createElement("div");
+      item.className = "result-item";
+      item.textContent = `${formatName(b.building)} → ${b.level}`;
+      section.appendChild(item);
 
-      section.appendChild(res);
-    }
+      // ✔ correct cost accumulation per step
+      const cost = buildings[b.building]?.[b.level]?.requirements || {};
+      total.food += cost.food || 0;
+      total.lumber += cost.lumber || 0;
+      total.stone += cost.stone || 0;
+      total.ore += cost.ore || 0;
+      total.gold += cost.gold || 0;
+    });
+
+    const res = document.createElement("div");
+    res.style.fontSize = "12px";
+    res.style.opacity = "0.8";
+    res.textContent =
+      `🥩 ${formatShort(total.food)} 🌲 ${formatShort(total.lumber)} 🪨 ${formatShort(total.stone)} ⛏ ${formatShort(total.ore)} 💰 ${formatShort(total.gold)}`;
+
+    section.appendChild(res);
 
     container.appendChild(section);
   });
 
+  // --- "more" block MUST be inside function ---
   if (sortedAll.length > DISPLAY_LIMIT) {
     const more = document.createElement("div");
     more.style.marginTop = "8px";
     more.style.opacity = "0.7";
-    more.textContent = `...and ${sortedAll.length - DISPLAY_LIMIT} more levels`;
+    more.textContent =
+      `...and ${sortedAll.length - DISPLAY_LIMIT} more levels`;
+
     container.appendChild(more);
   }
 }
@@ -560,7 +554,8 @@ function renderOrder(order, blockers = []) {
   achievedAllBtn.onclick = () => {
     const grouped = {};
     order.forEach(step => {
-      const [b, lvl] = step.split(" → ");
+      const b = step.building;
+      const lvl = step.level;
       grouped[b] = grouped[b] || [];
       grouped[b].push(Number(lvl));
     });
@@ -576,7 +571,8 @@ function renderOrder(order, blockers = []) {
   // --- Group steps by building ---
   const grouped = {};
   order.forEach(step => {
-    const [b, lvl] = step.split(" → ");
+    const b = step.building;
+    const lvl = step.level;
     grouped[b] = grouped[b] || [];
     grouped[b].push(Number(lvl));
   });
@@ -708,7 +704,8 @@ async function calculate() {
 
   const simulated = { ...state.currentLevels };
   order.forEach(step => {
-    const [b, lvl] = step.split(" → ");
+    const b = step.building;
+    const lvl = step.level;
     simulated[b] = Number(lvl);
   });
 
@@ -718,7 +715,7 @@ async function calculate() {
   renderResources(resources);
   renderSpecials(specials);
   renderOrder(order, blockers);
-  renderLevelBreakdown(plan);
+  renderLevelBreakdown(plan, order);
   // ---- Heavy computation ends ----
 
   loader.classList.add("hidden"); // hide loader
