@@ -1,0 +1,7 @@
+{
+  "name": "building-buddy",
+  "private": true,
+  "scripts": {
+    "test": "node --check script.js && node tests/validate-data.js"
+  }
+}
