@@ -6,25 +6,95 @@ const defaultState = {
   specialCompleted: {}
 };
 
-let state = JSON.parse(localStorage.getItem("evonyData")) || defaultState;
+function readStoredJSON(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value == null ? fallback : JSON.parse(value);
+  } catch (error) {
+    console.warn(`Ignoring invalid saved data for ${key}.`, error);
+    localStorage.removeItem(key);
+    return fallback;
+  }
+}
+
+function loadState() {
+  const saved = readStoredJSON("evonyData", {});
+
+  return {
+    currentLevels:
+      saved.currentLevels && typeof saved.currentLevels === "object"
+        ? saved.currentLevels
+        : {},
+    goal: {
+      building:
+        typeof saved.goal?.building === "string"
+          ? saved.goal.building
+          : defaultState.goal.building,
+      level: Number.isFinite(Number(saved.goal?.level))
+        ? Math.trunc(Number(saved.goal.level))
+        : defaultState.goal.level
+    },
+    specialCompleted:
+      saved.specialCompleted && typeof saved.specialCompleted === "object"
+        ? saved.specialCompleted
+        : {}
+  };
+}
+
+let state = loadState();
+
+function getMaxLevel(building) {
+  const levels = Object.keys(buildings[building] || {})
+    .map(Number)
+    .filter(Number.isInteger);
+  return levels.length ? Math.max(...levels) : 0;
+}
+
+function clampLevel(value, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return min;
+  return Math.min(max, Math.max(min, Math.trunc(number)));
+}
 
 function save() {
   localStorage.setItem("evonyData", JSON.stringify(state));
 }
 
 async function loadData() {
-  const res = await fetch("buildings.json");
-  buildings = await res.json();
+  try {
+    const res = await fetch("buildings.json");
+    if (!res.ok) throw new Error(`Unable to load buildings.json (${res.status})`);
+    buildings = await res.json();
 
-  for (const b in buildings) {
-    if (state.currentLevels[b] == null) state.currentLevels[b] = 0;
+    for (const b in buildings) {
+      state.currentLevels[b] = clampLevel(
+        state.currentLevels[b] ?? 0,
+        0,
+        getMaxLevel(b)
+      );
+    }
+
+    if (!buildings[state.goal.building]) {
+      state.goal.building = buildings.keep ? "keep" : Object.keys(buildings)[0];
+    }
+    state.goal.level = clampLevel(
+      state.goal.level,
+      1,
+      getMaxLevel(state.goal.building)
+    );
+    save();
+
+    renderCurrent();
+    renderGoal();
+    addSectionControls();
+    loadLayout();
+    loadCollapsed();
+  } catch (error) {
+    console.error("Building Buddy could not start.", error);
+    document.getElementById("current-levels").textContent =
+      "Unable to load building data. Please refresh and try again.";
+    document.getElementById("calc-btn").disabled = true;
   }
-
-  renderCurrent();
-  renderGoal();
-  addSectionControls();
-  loadLayout();
-  loadCollapsed();
 }
 
 function addSectionControls() {
@@ -77,8 +147,8 @@ function saveLayout() {
 }
 
 function loadLayout() {
-  const order = JSON.parse(localStorage.getItem("layoutOrder"));
-  if (!order) return;
+  const order = readStoredJSON("layoutOrder", []);
+  if (!Array.isArray(order)) return;
 
   const container = document.getElementById("main-layout");
 
@@ -99,7 +169,8 @@ function saveCollapsed() {
 }
 
 function loadCollapsed() {
-  const state = JSON.parse(localStorage.getItem("collapsedState")) || {};
+  const state = readStoredJSON("collapsedState", {});
+  if (!state || typeof state !== "object") return;
   document.querySelectorAll(".section").forEach(s => {
     if (state[s.dataset.id]) {
       s.querySelector(".section-body").classList.add("hidden");
@@ -127,9 +198,12 @@ function renderCurrent() {
       const input = document.createElement("input");
       input.type = "number";
       input.min = 0;
+      input.max = getMaxLevel(b);
+      input.step = 1;
       input.value = state.currentLevels[b];
       input.onchange = e => {
-        state.currentLevels[b] = +e.target.value;
+        state.currentLevels[b] = clampLevel(e.target.value, 0, getMaxLevel(b));
+        e.target.value = state.currentLevels[b];
         save();
       };
 
@@ -166,6 +240,7 @@ function formatShort(num) {
 
 function renderGoal() {
   const sel = document.getElementById("goal-building");
+  const lvl = document.getElementById("goal-level");
   sel.innerHTML = "";
   for (const b in buildings) {
     const o = document.createElement("option");
@@ -174,16 +249,34 @@ function renderGoal() {
     sel.appendChild(o);
   }
   sel.value = state.goal.building;
-  sel.onchange = e => { state.goal.building = e.target.value; save(); };
+  sel.onchange = e => {
+    state.goal.building = e.target.value;
+    const max = getMaxLevel(state.goal.building);
+    state.goal.level = clampLevel(state.goal.level, 1, max);
+    lvl.max = max;
+    lvl.value = state.goal.level;
+    save();
+  };
 
-  const lvl = document.getElementById("goal-level");
+  lvl.min = 1;
+  lvl.max = getMaxLevel(state.goal.building);
+  lvl.step = 1;
   lvl.value = state.goal.level;
-  lvl.onchange = e => { state.goal.level = +e.target.value; save(); };
+  lvl.onchange = e => {
+    state.goal.level = clampLevel(e.target.value, 1, getMaxLevel(state.goal.building));
+    e.target.value = state.goal.level;
+    save();
+  };
 }
 
 const resolveCache = {};
 
 function resolve(building, level, res = {}, specials = [], visiting = new Set(), maxLevels = {}) {
+  const buildingData = buildings[building];
+  if (!buildingData?.[level]?.requirements) {
+    throw new Error(`Missing building data for ${formatName(building)} level ${level}.`);
+  }
+
   const key = building + "-" + level;
 
   if (visiting.has(key)) return { levels: res, specials };
@@ -199,8 +292,6 @@ function resolve(building, level, res = {}, specials = [], visiting = new Set(),
   if (!res[building] || res[building] < level) {
     res[building] = level;
   }
-
-  const buildingData = buildings[building] || {};
 
   for (let i = 1; i <= level; i++) {
     const reqs = buildingData[i]?.requirements || {};
@@ -357,7 +448,10 @@ function getBuildOrder(plan, targetLevels) {
     if (!buildingData) return false;
 
     const levelData = buildingData[level];
-    if (!levelData || !levelData.requirements) return true;
+    if (!levelData || !levelData.requirements) {
+      console.warn("Missing building/level:", building, level);
+      return false;
+    }
 
     const reqs = levelData.requirements || {};
 
@@ -370,10 +464,6 @@ function getBuildOrder(plan, targetLevels) {
           return false;
         }
       }
-    }
-    if (!buildingData || !buildingData[level]) {
-      console.warn("Missing building/level:", building, level);
-      return false;
     }
     return true;
   }
@@ -693,32 +783,38 @@ async function calculate() {
   const loader = document.getElementById("loader");
   loader.classList.remove("hidden"); // show loader
 
-  // Give the browser a moment to render the loader
-  await new Promise(resolve => setTimeout(resolve, 10));
+  try {
+    // Give the browser a moment to render the loader
+    await new Promise(resolve => setTimeout(resolve, 10));
 
-  // ---- Heavy computation starts here ----
-  const { levels, specials } = resolve(state.goal.building, state.goal.level);
-  const plan = getPlan(state.currentLevels, levels);
-  const resources = calcResources(plan);
-  const order = getBuildOrder(plan, levels);
+    const maxLevel = getMaxLevel(state.goal.building);
+    state.goal.level = clampLevel(state.goal.level, 1, maxLevel);
 
-  const simulated = { ...state.currentLevels };
-  order.forEach(step => {
-    const b = step.building;
-    const lvl = step.level;
-    simulated[b] = Number(lvl);
-  });
+    const { levels, specials } = resolve(state.goal.building, state.goal.level);
+    const plan = getPlan(state.currentLevels, levels);
+    const resources = calcResources(plan);
+    const order = getBuildOrder(plan, levels);
 
-  const blockers = getBlockers(plan, simulated, levels);
+    const simulated = { ...state.currentLevels };
+    order.forEach(step => {
+      const b = step.building;
+      const lvl = step.level;
+      simulated[b] = Number(lvl);
+    });
 
-  renderRequired(levels);
-  renderResources(resources);
-  renderSpecials(specials);
-  renderOrder(order, blockers);
-  renderLevelBreakdown(plan, order);
-  // ---- Heavy computation ends ----
+    const blockers = getBlockers(plan, simulated, levels);
 
-  loader.classList.add("hidden"); // hide loader
+    renderRequired(levels);
+    renderResources(resources);
+    renderSpecials(specials);
+    renderOrder(order, blockers);
+    renderLevelBreakdown(plan, order);
+  } catch (error) {
+    console.error("Unable to calculate the build plan.", error);
+    document.getElementById("required").textContent = error.message;
+  } finally {
+    loader.classList.add("hidden");
+  }
 }
 
 document.getElementById("calc-btn").addEventListener("click", calculate);
