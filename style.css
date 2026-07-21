@@ -15,6 +15,30 @@ h1, h2 {
   margin-bottom: 8px;
 }
 
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-links {
+    margin-left: auto;      /* pushes links to the far right */
+    display: flex;
+    flex-direction: column; /* stack vertically */
+    gap: 8px;
+    align-items: flex-end;  /* right-align text */
+}
+
+.header-links a {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.header-links a:hover {
+    text-decoration: underline;
+}
+
 /* ===== LAYOUT ===== */
 #main-layout {
   display: flex;
