@@ -244,10 +244,13 @@ function renderGoal() {
   const sel = document.getElementById("goal-building");
   const lvl = document.getElementById("goal-level");
   sel.innerHTML = "";
-  for (const b in buildings) {
+  const buildingList = Object.keys(buildings).sort((a, b) =>
+    formatName(a).localeCompare(formatName(b))
+  );
+  for (const b of buildingList) {
     const o = document.createElement("option");
     o.value = b;
-    o.textContent = b;
+    o.textContent = formatName(b);
     sel.appendChild(o);
   }
   sel.value = state.goal.building;
@@ -831,3 +834,4 @@ document.addEventListener("click", e => {
   }
 });
 
+  
