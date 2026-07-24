@@ -182,7 +182,9 @@ function renderCurrent() {
   const el = document.getElementById("current-levels");
   el.innerHTML = "";
 
-  const buildingList = Object.keys(buildings);
+  const buildingList = Object.keys(buildings).sort((a, b) =>
+    formatName(a).localeCompare(formatName(b))
+  );
   const batchSize = 10; // number of cards per batch
   let index = 0;
 
