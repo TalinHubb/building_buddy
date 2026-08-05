@@ -49,8 +49,7 @@
     "47": {"requirements": {"food": 72179000000, "lumber": 87610000000, "stone": 87776000000, "ore": 98232000000, "gold": 0, "special": 0, "wall": 46, "archer_camp": 46}},
     "48": {"requirements": {"food": 75788000000, "lumber": 91991000000, "stone": 92165000000, "ore": 103144000000, "gold": 0, "special": 0, "wall": 47, "barracks": 47, "pasture": 47}},
     "49": {"requirements": {"food": 79577000000, "lumber": 96591000000, "stone": 96773000000, "ore": 108301000000, "gold": 0, "special": "MA > Ballista Formation 2 level 3", "wall": 48, "archer_camp": 48}},
-    "50": {"requirements": {"food": 83556000000, "lumber": 101421000000, "stone": 101612000000, "ore": 113716000000, "gold": 0,
-      "special": "Mongolian Arrow Storm Formation 3 level 3", "wall": 49, "workshop": 49}}
+    "50": {"requirements": {"food": 83556000000, "lumber": 101421000000, "stone": 101612000000, "ore": 113716000000, "gold": 0, "special": "Mongolian Arrow Storm Formation 3 level 3", "wall": 49, "workshop": 49}}
   },
   "wall": {
     "1": {"requirements": {"food": 2100, "lumber": 2100, "stone": 0, "ore": 0, "gold": 0, "special": 0, "keep": 1}},
@@ -1028,7 +1027,17 @@
     "37": {"requirements": {"food": 1830814000, "lumber": 2322578000, "stone": 2393050000, "ore": 2324158000, "gold": 0, "special": 0, "keep": 37}},
     "38": {"requirements": {"food": 2861552000, "lumber": 3630828000, "stone": 3740941000, "ore": 3632408000, "gold": 0, "special": 0, "keep": 38}},
     "39": {"requirements": {"food": 5283788000, "lumber": 6705216000, "stone": 6908484000, "ore": 6706796000, "gold": 0, "special": 0, "keep": 39}},
-    "40": {"requirements": {"food": 12429381000, "lumber": 15774660000, "stone": 16252736000, "ore": 15776240000, "gold": 0, "special": 0, "keep": 40}}
+    "40": {"requirements": {"food": 12429381000, "lumber": 15774660000, "stone": 16252736000, "ore": 15776240000, "gold": 0, "special": 0, "keep": 40}},
+    "41": {"requirements": {"food": 13501000000, "lumber": 17138000000, "stone": 17657000000, "ore": 17135000000, "gold": 0, "special": 0, "keep": 41}},
+    "42": {"requirements": {"food": 14596000000, "lumber": 18532000000, "stone": 19093000000, "ore": 18524000000, "gold": 0, "special": 0, "keep": 42}},
+    "43": {"requirements": {"food": 15692000000, "lumber": 19926000000, "stone": 20529000000, "ore": 19914000000, "gold": 0, "special": 0, "keep": 43}},
+    "44": {"requirements": {"food": 16787000000, "lumber": 21321000000, "stone": 21966000000, "ore": 21303000000, "gold": 0, "special": 0, "keep": 44}},
+    "45": {"requirements": {"food": 17884000000, "lumber": 22716000000, "stone": 23403000000, "ore": 22693000000, "gold": 0, "special": 0, "keep": 45}},
+    "46": {"requirements": {"food": 18778000000, "lumber": 23852000000, "stone": 24573000000, "ore": 23827000000, "gold": 0, "special": 0, "keep": 46}},
+    "47": {"requirements": {"food": 19717000000, "lumber": 25045000000, "stone": 25802000000, "ore": 25018000000, "gold": 0, "special": 0, "keep": 47}},
+    "48": {"requirements": {"food": 20703000000, "lumber": 26297000000, "stone": 27092000000, "ore": 26269000000, "gold": 0, "special": 0, "keep": 48}},
+    "49": {"requirements": {"food": 21738000000, "lumber": 27612000000, "stone": 28447000000, "ore": 27582000000, "gold": 0, "special": 0, "keep": 49}},
+    "50": {"requirements": {"food": 22825000000, "lumber": 28993000000, "stone": 29869000000, "ore": 28961000000, "gold": 0, "special": 0, "keep": 50}}
   },
   "forge": {
     "1": {"requirements": {"food": 1300, "lumber": 1300, "stone": 0, "ore": 0, "gold": 0, "special": 0, "keep": 7}},
@@ -1282,11 +1291,16 @@
     "38": {"requirements": {"food": 2861552000, "lumber": 3630828000, "stone": 3740941000, "ore": 3632408000, "gold": 0, "special": 0, "keep": 38}},
     "39": {"requirements": {"food": 5283788000, "lumber": 6705216000, "stone": 6908484000, "ore": 6706796000, "gold": 0, "special": 0, "keep": 39}},
     "40": {"requirements": {"food": 12429381000, "lumber": 15774660000, "stone": 16252736000, "ore": 15776240000, "gold": 0, "special": 0, "keep": 40}},
-    "41": {"requirements": {"food": 13500890000, "lumber": 17138026000, "stone": 17657131000, "ore": 17135005000, "gold": 0, "special": 0, "keep": 41}},
-    "42": {"requirements": {"food": 14596421000, "lumber": 18531689000, "stone": 19092758000, "ore": 18524330000, "gold": 0, "special": 0, "keep": 42}},
-    "43": {"requirements": {"food": 15692081000, "lumber": 19925967000, "stone": 20528980000, "ore": 19913655000, "gold": 0, "special": 0, "keep": 43}},
-    "44": {"requirements": {"food": 16787871000, "lumber": 21320858000, "stone": 21965796000, "ore": 21302979000, "gold": 0, "special": 0, "keep": 44}},
-    "45": {"requirements": {"food": 17883791000, "lumber": 22716364000, "stone": 23403209000, "ore": 22692304000, "gold": 0, "special": 0, "keep": 45}}
+    "41": {"requirements": {"food": 13501000000, "lumber": 17138000000, "stone": 17657000000, "ore": 17135000000, "gold": 0, "special": 0, "keep": 41}},
+    "42": {"requirements": {"food": 14596000000, "lumber": 18532000000, "stone": 19093000000, "ore": 18524000000, "gold": 0, "special": 0, "keep": 42}},
+    "43": {"requirements": {"food": 15692000000, "lumber": 19926000000, "stone": 20529000000, "ore": 19914000000, "gold": 0, "special": 0, "keep": 43}},
+    "44": {"requirements": {"food": 16787000000, "lumber": 21321000000, "stone": 21966000000, "ore": 21303000000, "gold": 0, "special": 0, "keep": 44}},
+    "45": {"requirements": {"food": 17884000000, "lumber": 22716000000, "stone": 23403000000, "ore": 22693000000, "gold": 0, "special": 0, "keep": 45}},
+    "46": {"requirements": {"food": 18778000000, "lumber": 23852000000, "stone": 24573000000, "ore": 23827000000, "gold": 0, "special": 0, "keep": 46}},
+    "47": {"requirements": {"food": 19717000000, "lumber": 25045000000, "stone": 25802000000, "ore": 25018000000, "gold": 0, "special": 0, "keep": 47}},
+    "48": {"requirements": {"food": 20703000000, "lumber": 26297000000, "stone": 27092000000, "ore": 26269000000, "gold": 0, "special": 0, "keep": 48}},
+    "49": {"requirements": {"food": 21738000000, "lumber": 27612000000, "stone": 28447000000, "ore": 27582000000, "gold": 0, "special": 0, "keep": 49}},
+    "50": {"requirements": {"food": 22825000000, "lumber": 28993000000, "stone": 29869000000, "ore": 28961000000, "gold": 0, "special": 0, "keep": 50}}
   },
   "holy_palace": {
     "1": {"requirements": {"food": 1200, "lumber": 1200, "stone": 0, "ore": 0, "gold": 0, "special": 0, "keep": 11}},
@@ -1350,7 +1364,12 @@
     "7": {"requirements": {"food": 29225998000, "lumber": 36522814000, "stone": 36484510000, "ore": 36503662000, "gold": 0, "special": 0, "keep": 42}},
     "8": {"requirements": {"food": 31431690000, "lumber": 39273476000, "stone": 39209397000, "ore": 39241437000, "gold": 0, "special": 0, "keep": 43}},
     "9": {"requirements": {"food": 33639299000, "lumber": 42025736000, "stone": 41932687000, "ore": 41979211000, "gold": 0, "special": 0, "keep": 44}},
-    "10": {"requirements": {"food": 35848826000, "lumber": 44779594000, "stone": 44654378000, "ore": 44716986000, "gold": 0, "special": 0, "keep": 45}}
+    "10": {"requirements": {"food": 35848826000, "lumber": 44779594000, "stone": 44654378000, "ore": 44716986000, "gold": 0, "special": 0, "keep": 45}},
+    "11": {"requirements": {"food": 37641000000, "lumber": 47019000000, "stone": 46887000000, "ore": 46953000000, "gold": 0, "special": 0, "keep": 46}},
+    "12": {"requirements": {"food": 39523000000, "lumber": 49370000000, "stone": 49231000000, "ore": 49301000000, "gold": 0, "special": 0, "keep": 47}},
+    "13": {"requirements": {"food": 41499000000, "lumber": 51839000000, "stone": 51693000000, "ore": 51766000000, "gold": 0, "special": 0, "keep": 48, "rally_spot": 48}},
+    "14": {"requirements": {"food": 43574000000, "lumber": 54431000000, "stone": 54278000000, "ore": 54354000000, "gold": 0, "special": 0, "keep": 49}},
+    "15": {"requirements": {"food": 54903000000, "lumber": 68583000000, "stone": 68390000000, "ore": 68486000000, "gold": 0, "special": 0, "keep": 50}}
   },
   "triumphal_arch": {
     "1": {"requirements": {"food": 701545000, "lumber": 889466000, "stone": 916498000, "ore": 890762000, "gold": 0, "special": 0}},
@@ -1579,7 +1598,27 @@
     "27": {"requirements": {"food": 43030000, "lumber": 54615000, "stone": 56270000, "ore": 54615000, "gold": 0, "special": 0, "keep": 27}},
     "28": {"requirements": {"food": 62890000, "lumber": 79440000, "stone": 82750000, "ore": 81095000, "gold": 0, "special": 0, "keep": 28}},
     "29": {"requirements": {"food": 95990000, "lumber": 120815000, "stone": 124125000, "ore": 122470000, "gold": 0, "special": 0, "keep": 29}},
-    "30": {"requirements": {"food": 125780000, "lumber": 158053000, "stone": 161363000, "ore": 159708000, "gold": 0, "special": 0, "keep": 30}}
+    "30": {"requirements": {"food": 125780000, "lumber": 158053000, "stone": 161363000, "ore": 159708000, "gold": 0, "special": 0, "keep": 30}},
+    "31": {"requirements": {"food": 166443000, "lumber": 208883000, "stone": 212193000, "ore": 210538000, "gold": 0, "special": 0, "keep": 31}},
+    "32": {"requirements": {"food": 232032000, "lumber": 290872000, "stone": 294182000, "ore": 292527000, "gold": 0, "special": 0, "keep": 32}},
+    "33": {"requirements": {"food": 356126000, "lumber": 445995000, "stone": 449305000, "ore": 447650000, "gold": 0, "special": 0, "keep": 33}},
+    "34": {"requirements": {"food": 687085000, "lumber": 859708000, "stone": 863018000, "ore": 861363000, "gold": 0, "special": 0, "keep": 34}},
+    "35": {"requirements": {"food": 1776858000, "lumber": 1776858000, "stone": 2051834000, "ore": 1778804000, "gold": 0, "special": 0, "keep": 35}},
+    "36": {"requirements": {"food": 2867000000, "lumber": 2694000000, "stone": 3241000000, "ore": 2696000000, "gold": 0, "special": 0, "keep": 36}},
+    "37": {"requirements": {"food": 4365000000, "lumber": 3955000000, "stone": 4875000000, "ore": 3958000000, "gold": 0, "special": 0, "keep": 37}},
+    "38": {"requirements": {"food": 7100000000, "lumber": 6257000000, "stone": 7859000000, "ore": 6260000000, "gold": 0, "special": 0, "keep": 38}},
+    "39": {"requirements": {"food": 13526000000, "lumber": 11665000000, "stone": 14869000000, "ore": 11670000000, "gold": 0, "special": 0, "keep": 39}},
+    "40": {"requirements": {"food": 32484000000, "lumber": 27620000000, "stone": 35550000000, "ore": 27630000000, "gold": 0, "special": 0, "keep": 40}},
+    "41": {"requirements": {"food": 36352000000, "lumber": 30003000000, "stone": 39417000000, "ore": 30010000000, "gold": 0, "special": 0, "keep": 41}},
+    "42": {"requirements": {"food": 40211000000, "lumber": 32440000000, "stone": 43300000000, "ore": 32443000000, "gold": 0, "special": 0, "keep": 42}},
+    "43": {"requirements": {"food": 44207000000, "lumber": 34877000000, "stone": 47286000000, "ore": 34876000000, "gold": 0, "special": 0, "keep": 43}},
+    "44": {"requirements": {"food": 48340000000, "lumber": 37314000000, "stone": 51375000000, "ore": 37310000000, "gold": 0, "special": 0, "keep": 44}},
+    "45": {"requirements": {"food": 52610000000, "lumber": 39752000000, "stone": 55567000000, "ore": 39743000000, "gold": 0, "special": 0, "keep": 45}},
+    "46": {"requirements": {"food": 55240000000, "lumber": 41740000000, "stone": 58345000000, "ore": 41730000000, "gold": 0, "special": 0, "keep": 46}},
+    "47": {"requirements": {"food": 58002000000, "lumber": 43827000000, "stone": 61262000000, "ore": 43817000000, "gold": 0, "special": 0, "keep": 47}},
+    "48": {"requirements": {"food": 60902000000, "lumber": 46018000000, "stone": 64325000000, "ore": 46008000000, "gold": 0, "special": 0, "keep": 48}},
+    "49": {"requirements": {"food": 63947000000, "lumber": 48319000000, "stone": 67541000000, "ore": 48308000000, "gold": 0, "special": 0, "keep": 49}},
+    "50": {"requirements": {"food": 67144000000, "lumber": 50735000000, "stone": 70918000000, "ore": 50723000000, "gold": 0, "special": 0, "keep": 50}}
   },
   "victory_column": {
     "1": {"requirements": {"food": 935392800, "lumber": 1185954000, "stone": 1221997000, "ore": 1187682000, "gold": 0, "special": "Own 2 5.8M & above power generals at the same time", "holy_palace": 35}},
@@ -1587,11 +1626,12 @@
     "3": {"requirements": {"food": 2424610000, "lumber": 3076091000, "stone": 3169408000, "ore": 3077818000, "gold": 0, "special": "Own 3 6.3M & above power generals at the same time"}},
     "4": {"requirements": {"food": 4740562000, "lumber": 6015530000, "stone": 6197919000, "ore": 6017258000, "gold": 0, "special": "Own 4 6.5M & above power generals at the same time"}},
     "5": {"requirements": {"food": 12209507000, "lumber": 15495223000, "stone": 15964867000, "ore": 15496951000, "gold": 0, "special": "Own 3 7M & above power generals at the same time"}},
-    "6": {"requirements": {"food": 13262663000, "lumber": 16837202000, "stone": 17347068000, "ore": 16831661000, "gold": 0, "special": "Own 4 7.5M & above power generals at the same time", "holy_palace": 37}},
-    "7": {"requirements": {"food": 14339306000, "lumber": 18208427000, "stone": 18759448000, "ore": 18196391000, "gold": 0, "special": "Own 5 8M & above power generals at the same time", "holy_palace": 38}},
-    "8": {"requirements": {"food": 15416142000, "lumber": 19580559000, "stone": 20172707000, "ore": 19561120000, "gold": 0, "special": "Own 3 9M & above power generals at the same time", "holy_palace": 40}},
-    "9": {"requirements": {"food": 16493171000, "lumber": 20953598000, "stone": 21586845000, "ore": 20925849000, "gold": 0, "special": "Own 4 10M & above power generals at the same time", "holy_palace": 42}},
-    "10": {"requirements": {"food": 17570395000, "lumber": 22327544000, "stone": 23001862000, "ore": 22290578000, "gold": 0, "special": "Own 3 11M & above power generals at the same time", "holy_palace": 44}}
+    "6": {"requirements": {"food": 13262663000, "lumber": 16837202000, "stone": 17347068000, "ore": 16831661000, "gold": 0, "special": "Own 4 7.5M & above power generals at the same time", "keep": 37}},
+    "7": {"requirements": {"food": 14339306000, "lumber": 18208427000, "stone": 18759448000, "ore": 18196391000, "gold": 0, "special": "Own 5 8M & above power generals at the same time", "keep": 38}},
+    "8": {"requirements": {"food": 15416142000, "lumber": 19580559000, "stone": 20172707000, "ore": 19561120000, "gold": 0, "special": "Own 3 9M & above power generals at the same time", "keep": 40}},
+    "9": {"requirements": {"food": 16493171000, "lumber": 20953598000, "stone": 21586845000, "ore": 20925849000, "gold": 0, "special": "Own 4 10M & above power generals at the same time", "keep": 42}},
+    "10": {"requirements": {"food": 17570395000, "lumber": 22327544000, "stone": 23001862000, "ore": 22290578000, "gold": 0, "special": "Own 3 11M & above power generals at the same time", "keep": 44}},
+    "11": {"requirements": {"food": 21963000000, "lumber": 27909000000, "stone": 28752000000, "ore": 27863000000, "gold": 0, "special": "Own 4 12.5M & above power generals at the same time", "academy": 45}}
    },
    "council_of_state": {
     "1": {"requirements": {"food": 1000, "lumber": 1000, "stone": 0, "ore": 0, "gold": 0, "special": 0}},
