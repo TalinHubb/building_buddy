@@ -1437,7 +1437,7 @@
     "49": {"requirements": {"food": 27810000000, "lumber": 35076000000, "stone": 35113000000, "ore": 36250000000, "gold": 0, "special": 0, "keep": 49, "wall": 49}},
     "50": {"requirements": {"food": 35041000000, "lumber": 44196000000, "stone": 44242000000, "ore": 45675000000, "gold": 0, "special": 0, "keep": 50, "wall": 50}}
   },
-  "wisdome_dome": {
+  "wisdom_dome": {
     "1": {"requirements": {"food": 2050000, "lumber": 2700000, "stone": 2700000, "ore": 2700000, "gold": 0, "special": 0, "keep": 28}},
     "2": {"requirements": {"food": 7000000, "lumber": 8900000, "stone": 9100000, "ore": 8900000, "gold": 0, "special": 0, "keep": 28}},
     "3": {"requirements": {"food": 20600000, "lumber": 26400000, "stone": 27400000, "ore": 26400000, "gold": 0, "special": 0, "keep": 28}},
